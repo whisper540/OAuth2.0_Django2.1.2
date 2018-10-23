@@ -1,0 +1,198 @@
+基于python3.7
+
+1),
+安装python3.7
+安装虚拟环境virtualenv
+	pip install virtualenv
+
+在磁盘上新建一个虚拟环境目录，所谓虚拟环境，就是创建一个集成python的文件夹，例如，
+mkdir oauth2	（本例在E盘根目录下创建一个oauth2的项目目录）
+cd oauth2	（进入到oauth2目录）
+mkdir env	（在oauth2目录中创建一个虚拟环境，名称为env）
+cd env	（进入到env目录）
+cd Scripts	（进入到env目录的Scripts文件夹下）
+activate	(在当前目录下执行'activate'命令，开启虚拟python3.7环境)
+
+执行完以上步骤后，命令行出现提示符(大致)如下：
+(env) E:\oauth2\env\Scripts>	(命令行最前面出现"(env)"字符说明已经在虚拟环境中了)
+接下来切换到oauth2目录，按照步骤2开始安装依赖包
+(env) E:\oauth2>
+
+
+2),
+pip安装依赖：
+(env) E:\oauth2> pip install django==2.1.2
+(env) E:\oauth2> pip install requests==2.19.1
+(env) E:\oauth2> pip install pymysql==0.9.2
+
+安装完毕后，查看所有依赖包(安装上面三个包时,会自动安装包的依赖)，
+(env) E:\oauth2> pip freeze
+	asn1crypto==0.24.0
+	certifi==2018.10.15
+	cffi==1.11.5
+	chardet==3.0.4
+	cryptography==2.3.1
+	Django==2.1.2
+	idna==2.7
+	pycparser==2.19
+	PyMySQL==0.9.2
+	pytz==2018.5
+	requests==2.19.1
+	six==1.11.0
+	urllib3==1.23
+
+3),
+创建django项目，
+分别创建Oauth2.0的客户端(client)和服务端(auther,本例验证服务和资源服务器都在auther上)
+建议打开两个命令行界面，都进入到虚拟环境的"(env) E:\oauth2>"目录下，
+
+client端：
+(env) E:\oauth2> django-admin startproject client
+(env) E:\oauth2> cd client
+(env) E:\oauth2\client> python manage.py startapp oauthClient
+
+
+auther端：
+(env) E:\oauth2> django-admin startproject auther
+(env) E:\oauth2> cd auther
+(env) E:\oauth2\auther> python manage.py startapp oauthServer
+
+4),
+修改client基本配置，
+用编辑器打开：E:\oauth2\client\client\settings.py文件，修改
+	1,ALLOWED_HOSTS = ['192.168.10.18']	(添加允许访问的IP地址,我的本地IP地址为192.168.10.18)
+
+	2,INSTALLED_APPS = [
+	    'django.contrib.admin',
+	    'django.contrib.auth',
+	    'django.contrib.contenttypes',
+	    'django.contrib.sessions',
+	    'django.contrib.messages',
+	    'django.contrib.staticfiles',
+	    'oauthClient',	(这里添加'oauthClient')
+	]
+
+	3,TEMPLATES = [
+	    {
+	        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+	        'DIRS': [os.path.join(BASE_DIR, 'templates')],	(此处意思是设置client的模板目录'E:\oauth2\client\templates')
+	        'APP_DIRS': True,
+	        'OPTIONS': {
+	            'context_processors': [
+	                'django.template.context_processors.debug',
+	                'django.template.context_processors.request',
+	                'django.contrib.auth.context_processors.auth',
+	                'django.contrib.messages.context_processors.messages',
+	            ],
+	        },
+	    },
+	]
+
+	4,DATABASES = {
+		# 删除或者注释掉原来的数据库引擎
+	    # 'default': {
+	    #     'ENGINE': 'django.db.backends.sqlite3',
+	    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+	    # }
+
+	    # 设置数据库的新引擎为mysql引擎
+	    'default': {
+	        'ENGINE': 'django.db.backends.mysql',	#设置数据库的引擎为mysql引擎
+	        'NAME': 'dj_client',	#数据库名称为dj_client
+	        'USER': 'root',	#数据库用户名为root
+	        'PASSWORD': '123',	#数据库密码为123
+	        'HOST': '192.168.10.18',	#数据库地址为
+	        'PORT': '3306',	#数据库端口号是3306
+	    }
+	}
+
+	5,设置时区为中国上海
+	LANGUAGE_CODE = 'zh-hans'
+	TIME_ZONE = 'Asia/Shanghai'
+
+	6,
+	django的默认数据库引擎是sqlite3，上面第4步骤修改了数据库引擎，但想要使用django的ORM操作机制，还需要修改E:\oauth2\client\client\__init__.py文件
+	在文件中添加：
+	import pymysql
+	pymysql.install_as_MySQLdb()
+
+5),
+修改auther基本配置，
+用编辑器打开：E:\oauth2\auther\auther\settings.py文件，修改
+	1,ALLOWED_HOSTS = ['192.168.10.18']	(添加允许访问的IP地址,我的本地IP地址为192.168.10.18)
+
+	2,INSTALLED_APPS = [
+	    'django.contrib.admin',
+	    'django.contrib.auth',
+	    'django.contrib.contenttypes',
+	    'django.contrib.sessions',
+	    'django.contrib.messages',
+	    'django.contrib.staticfiles',
+	    'oauthServer',	(这里添加'oauthServer')
+	]
+
+	3,TEMPLATES = [
+	    {
+	        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+	        'DIRS': [os.path.join(BASE_DIR, 'templates')],	(此处意思是设置client的模板目录'E:\oauth2\auther\templates')
+	        'APP_DIRS': True,
+	        'OPTIONS': {
+	            'context_processors': [
+	                'django.template.context_processors.debug',
+	                'django.template.context_processors.request',
+	                'django.contrib.auth.context_processors.auth',
+	                'django.contrib.messages.context_processors.messages',
+	            ],
+	        },
+	    },
+	]
+
+	4,DATABASES = {
+		# 删除或者注释掉原来的数据库引擎
+	    # 'default': {
+	    #     'ENGINE': 'django.db.backends.sqlite3',
+	    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+	    # }
+
+	    # 设置数据库的新引擎为mysql引擎
+	    'default': {
+	        'ENGINE': 'django.db.backends.mysql',	#设置数据库的引擎为mysql引擎
+	        'NAME': 'dj_auther',	#数据库名称为dj_auther
+	        'USER': 'root',	#数据库用户名为root
+	        'PASSWORD': '123',	#数据库密码为123
+	        'HOST': '192.168.10.18',	#数据库地址为
+	        'PORT': '3306',	#数据库端口号是3306
+	    }
+	}
+
+	5,设置时区为中国上海
+	LANGUAGE_CODE = 'zh-hans'
+	TIME_ZONE = 'Asia/Shanghai'
+
+	6,
+	django的默认数据库引擎是sqlite3，上面第4步骤修改了数据库引擎，但想要使用django的ORM操作机制，还需要修改E:\oauth2\auther\auther\__init__.py文件
+	在文件中添加：
+	import pymysql
+	pymysql.install_as_MySQLdb()
+
+6),
+到此处配置工作已经完毕，接下来需要做以下动作：
+	1,必须手动创建dj_client和dj_auther两个数据库,然后如下操作
+
+	2,client端,
+		(env) E:\oauth2\client> python manage.py makemigrations	#生成配置文件
+		(env) E:\oauth2\client> python manage.py migrate	#根据配置文件创建数据库相关
+
+	3,auther端,
+		(env) E:\oauth2\auther> python manage.py makemigrations	#生成配置文件
+		(env) E:\oauth2\auther> python manage.py migrate	#根据配置文件创建数据库相关
+
+	3,运行client端
+		(env) E:\oauth2\client> python manage.py runserver 192.168.10.18:8001
+
+	4,运行auther端
+		(env) E:\oauth2\auther> python manage.py runserver 192.168.10.18:8002
+
+7),
+剩下请参照代码部分，client代码和auther代码。
+
