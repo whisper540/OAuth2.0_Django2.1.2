@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Client</title>
+</head>
+<body>
+    <h1>Client</h1>
+    <div>
+        <div>
+            <input type="text">
+        </div>
+        <div>
+            <input type="text">
+        </div>
+        <div>
+            <button>登录</button>
+        </div>
+        <div>
+            <a href="javascript:void(0);" id="thirdBtn">授权登录</a>
+        </div>
+    </div>
+
+    <script defer>
+        let server_uri = 'http://192.168.10.18:8002/oauth';
+        let response_type = "code";
+        let client_id = '192.168.10.18';
+        let redirect_uri = 'http://192.168.10.18:8001/oauth/authorize';
+        let scope = 'host';
+        let state = 'login';
+        let thirdBtn = document.getElementById("thirdBtn");
+        let url = server_uri + '/server?response_type='+ response_type +
+                '&client_id=' + client_id +
+                '&redirect_uri=' + redirect_uri +
+                '&scope=' + scope +
+                '&state=' + state;
+        thirdBtn.addEventListener('click', function(e){
+            // fetch(url,{
+            //     method: 'GET'
+            // }).then((res) => {
+            //     return res.text();
+            // }).then((res) => {
+            //     console.log(res)
+            //     // if(res) {
+            //     //     location.href = res+"?callback=http://192.168.10.18:8001/oauth/client";
+            //     // }
+            // });
+            location.href = url;
+        }, false);
+    </script>
+</body>
+</html>
