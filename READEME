@@ -1,5 +1,9 @@
 基于python3.7
 
+0),
+你要先对OAuth2.0有一定的了解，建议先读一下阮一峰的oauth2.0文章，直接看“授权码模式”即可，带着疑问再来读本文效果更好。
+http://www.ruanyifeng.com/blog/2014/05/oauth_2_0.html
+
 1),
 安装python3.7
 安装虚拟环境virtualenv
